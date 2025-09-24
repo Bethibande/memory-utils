@@ -1,14 +1,47 @@
 package de.bethibande.memory.impl;
 
+import de.bethibande.memory.Buffer;
+
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
+import java.nio.ByteBuffer;
 
-public class NativeBufferImpl extends AbstractBuffer {
+public class BufferImpl extends AbstractBuffer {
 
     private final MemorySegment segment;
 
-    public NativeBufferImpl(final MemorySegment segment) {
+    public BufferImpl(final MemorySegment segment) {
         this.segment = segment;
+    }
+
+    @Override
+    protected void free() {
+        reset();
+    }
+
+    @Override
+    public Buffer slice(final long offset, final long length) {
+        return new BufferImpl(this.segment.asSlice(offset, length));
+    }
+
+    public ByteBuffer asNioBuffer() {
+        return this.segment.asByteBuffer();
+    }
+
+    public Buffer asReadOnly() {
+        return new BufferImpl(this.segment.asReadOnly());
+    }
+
+    public boolean isMapped() {
+        return this.segment.isMapped();
+    }
+
+    public boolean isReadOnly() {
+        return this.segment.isReadOnly();
+    }
+
+    public boolean isNative() {
+        return this.segment.isNative();
     }
 
     public long address() {

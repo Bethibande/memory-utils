@@ -2,10 +2,14 @@ package de.bethibande.memory.impl;
 
 import de.bethibande.memory.Buffer;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public abstract class AbstractBuffer implements Buffer {
 
     private volatile long writePosition;
     private volatile long readPosition;
+
+    protected final AtomicInteger refCount = new AtomicInteger(1);
 
     @Override
     public long writePosition() {
@@ -27,4 +31,23 @@ public abstract class AbstractBuffer implements Buffer {
         this.readPosition = position;
     }
 
+    @Override
+    public void retain() {
+        refCount.incrementAndGet();
+    }
+
+    @Override
+    public void release() {
+        final int count = refCount.decrementAndGet();
+        if (count == 0) free();
+    }
+
+    protected void free() {
+        // Noop. Override if needed.
+    }
+
+    @Override
+    public int referenceCount() {
+        return refCount.get();
+    }
 }
