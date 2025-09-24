@@ -6,12 +6,12 @@
 
     <groupId>de.bethibande.memory</groupId>
     <artifactId>memory-utils</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
+    <packaging>pom</packaging>
 
-    <properties>
-        <maven.compiler.source>25</maven.compiler.source>
-        <maven.compiler.target>25</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+    <modules>
+        <module>core</module>
+        <module>bench</module>
+    </modules>
 
 </project>
