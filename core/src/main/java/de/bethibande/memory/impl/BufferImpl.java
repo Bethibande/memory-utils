@@ -21,7 +21,7 @@ public class BufferImpl extends AbstractBuffer {
 
     @Override
     public Buffer slice(final long offset, final long length) {
-        return new BufferImpl(this.segment.asSlice(offset, length));
+        return new SlicedBuffer(this.segment.asSlice(offset, length), this);
     }
 
     public ByteBuffer asNioBuffer() {

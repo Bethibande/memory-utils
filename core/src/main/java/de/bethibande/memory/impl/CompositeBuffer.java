@@ -2,25 +2,30 @@ package de.bethibande.memory.impl;
 
 import de.bethibande.memory.Buffer;
 
-import java.util.TreeMap;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CompositeBuffer extends AbstractBuffer {
 
-    private final Buffer[] buffers;
-    private final TreeMap<Long, CompositeRegion> index = new TreeMap<>();
+    private CompositeRegion[] regions;
+    private long[] index;
 
-    private final long size;
+    private long size;
 
     public CompositeBuffer(final Buffer[] buffers) {
-        this.buffers = buffers;
+        this.regions = new CompositeRegion[buffers.length];
+        this.index = new long[buffers.length];
         this.size = calculateSize(buffers);
-        buildIndex();
+        buildIndex(buffers);
     }
 
-    private void buildIndex() {
+    private void buildIndex(final Buffer[] buffers) {
         long offset = 0;
-        for (Buffer buffer : buffers) {
-            index.put(offset, new CompositeRegion(buffer, offset));
+        for (int i = 0; i < regions.length; i++) {
+            final Buffer buffer = buffers[i];
+            final CompositeRegion region = new CompositeRegion(buffer, offset);
+            this.regions[i] = region;
+            this.index[i] = offset;
             offset += buffer.capacity();
         }
     }
@@ -35,7 +40,23 @@ public class CompositeBuffer extends AbstractBuffer {
 
     @Override
     public Buffer slice(final long offset, final long length) {
-        throw new UnsupportedOperationException("Composite buffers do not support slicing"); // TODO: Implement
+        final List<Buffer> buffers = new ArrayList<>();
+
+        long currentOffset = offset;
+        long remainingBytes = length;
+        while (remainingBytes > 0) {
+            final CompositeRegion region = regionAt(currentOffset);
+            final Buffer buffer = region.buffer();
+
+            // Always slicing the buffer will ensure we always get a buffer with the correct capacity.
+            // It will also increase the reference count of the buffer and decrease it when the slice is released.
+            buffers.add(buffer.slice(region.pos(currentOffset), Math.min(remainingBytes, buffer.capacity())));
+
+            currentOffset += buffer.capacity();
+            remainingBytes -= buffer.capacity();
+        }
+
+        return new CompositeBuffer(buffers.toArray(Buffer[]::new));
     }
 
     @Override
@@ -45,14 +66,26 @@ public class CompositeBuffer extends AbstractBuffer {
 
     @Override
     protected void free() {
-        for (int i = 0; i < buffers.length; i++) { // No enhanced for loop; iterators are slower and litter the heap
-            buffers[i].release();
+        for (int i = 0; i < regions.length; i++) { // No enhanced for loop; iterators are slower and litter the heap
+            regions[i].buffer().release();
         }
     }
 
     protected CompositeRegion regionAt(final long offset) {
-        final long bufferOffset = index.floorKey(offset);
-        return index.get(bufferOffset);
+        int low = 0;
+        int high = index.length - 1;
+        while (low <= high) {
+            final int mid = (low + high) >>> 1;
+            final long midVal = index[mid];
+            if (midVal < offset) {
+                low = mid + 1;
+            } else if (midVal > offset) {
+                high = mid - 1;
+            } else {
+                return regions[mid];
+            }
+        }
+        return regions[low];
     }
 
     @Override
