@@ -15,11 +15,11 @@ public class CompositeBuffer extends AbstractBuffer {
     public CompositeBuffer(final Buffer[] buffers) {
         this.regions = new CompositeRegion[buffers.length];
         this.index = new long[buffers.length];
-        this.size = calculateSize(buffers);
-        buildIndex(buffers);
+        init(buffers);
+        this.size = calculateSize(this.regions);
     }
 
-    private void buildIndex(final Buffer[] buffers) {
+    private void init(final Buffer[] buffers) {
         long offset = 0;
         for (int i = 0; i < regions.length; i++) {
             final Buffer buffer = buffers[i];
@@ -30,12 +30,45 @@ public class CompositeBuffer extends AbstractBuffer {
         }
     }
 
-    private long calculateSize(final Buffer[] buffers) {
+    private long calculateSize(final CompositeRegion[] regions) {
         long size = 0;
-        for (Buffer buffer : buffers) {
-            size += buffer.capacity();
+        for (int i = 0; i < regions.length; i++) {
+            size += regions[i].buffer().capacity();
         }
         return size;
+    }
+
+    private long[] updateIndex(final CompositeRegion[] regions) {
+        final long[] output = new long[regions.length];
+
+        long offset = 0;
+        for (int i = 0; i < regions.length; i++) {
+            final CompositeRegion region = regions[i];
+
+            output[i] = offset;
+            region.offset(offset);
+            offset += region.buffer().capacity();
+        }
+
+        return output;
+    }
+
+    public void expand(final Buffer buffer, final int index) {
+        final CompositeRegion[] regions = new CompositeRegion[this.regions.length + 1];
+        if (index > 0) {
+            System.arraycopy(this.regions, 0, regions, 0, index);
+        }
+
+        final CompositeRegion newRegion = new CompositeRegion(buffer, 0);
+        regions[index] = newRegion;
+
+        if (index < this.regions.length) {
+            System.arraycopy(this.regions, index, regions, index + 1, this.regions.length - index);
+        }
+
+        this.regions = regions;
+        this.index = updateIndex(regions);
+        this.size = calculateSize(regions);
     }
 
     @Override
@@ -56,6 +89,7 @@ public class CompositeBuffer extends AbstractBuffer {
             remainingBytes -= buffer.capacity();
         }
 
+        retain();
         return new CompositeBuffer(buffers.toArray(Buffer[]::new));
     }
 
@@ -69,6 +103,10 @@ public class CompositeBuffer extends AbstractBuffer {
         for (int i = 0; i < regions.length; i++) { // No enhanced for loop; iterators are slower and litter the heap
             regions[i].buffer().release();
         }
+    }
+
+    public Buffer bufferAt(final long offset) {
+        return regionAt(offset).buffer();
     }
 
     protected CompositeRegion regionAt(final long offset) {
@@ -364,5 +402,14 @@ public class CompositeBuffer extends AbstractBuffer {
     @Override
     public void write(final char c) {
         set(writeIdx(2), (short) c);
+    }
+
+    @Override
+    public String toString() {
+        return "CompositeBuffer{ " +
+               "buffers: " + regions.length + ", " +
+               "writePosition: " + writePosition() + ", " +
+               "readPosition: " + readPosition() +
+               " }";
     }
 }

@@ -2,10 +2,27 @@ package de.bethibande.memory.impl;
 
 import de.bethibande.memory.Buffer;
 
-public record CompositeRegion(
-        Buffer buffer,
-        long offset
-) {
+public class CompositeRegion {
+
+    private final Buffer buffer;
+    private long offset;
+
+    public CompositeRegion(final Buffer buffer, final long offset) {
+        this.buffer = buffer;
+        this.offset = offset;
+    }
+
+    public Buffer buffer() {
+        return buffer;
+    }
+
+    public long offset() {
+        return offset;
+    }
+
+    public void offset(final long offset) {
+        this.offset = offset;
+    }
 
     public long pos(final long globalOffset) {
         return globalOffset - this.offset;
@@ -15,4 +32,11 @@ public record CompositeRegion(
         return globalOffset + length <= this.offset + this.buffer.capacity();
     }
 
+    @Override
+    public String toString() {
+        return "CompositeRegion { " +
+               "capacity: " + this.buffer.capacity() + ", " +
+               "offset: " + this.offset +
+               " }";
+    }
 }

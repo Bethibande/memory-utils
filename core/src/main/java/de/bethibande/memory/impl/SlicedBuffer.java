@@ -4,7 +4,7 @@ import de.bethibande.memory.Buffer;
 
 import java.lang.foreign.MemorySegment;
 
-public class SlicedBuffer extends BufferImpl {
+public class SlicedBuffer extends DefaultBuffer {
 
     private final Buffer parent;
 

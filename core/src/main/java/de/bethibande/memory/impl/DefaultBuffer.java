@@ -6,11 +6,11 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 import java.nio.ByteBuffer;
 
-public class BufferImpl extends AbstractBuffer {
+public class DefaultBuffer extends AbstractBuffer {
 
     private final MemorySegment segment;
 
-    public BufferImpl(final MemorySegment segment) {
+    public DefaultBuffer(final MemorySegment segment) {
         this.segment = segment;
     }
 
@@ -29,7 +29,7 @@ public class BufferImpl extends AbstractBuffer {
     }
 
     public Buffer asReadOnly() {
-        return new BufferImpl(this.segment.asReadOnly());
+        return new DefaultBuffer(this.segment.asReadOnly());
     }
 
     public boolean isMapped() {
@@ -268,5 +268,14 @@ public class BufferImpl extends AbstractBuffer {
     public void write(final char c) {
         this.segment.set(ValueLayout.JAVA_CHAR_UNALIGNED, this.writePosition(), c);
         this.writePosition(this.writePosition() + 2);
+    }
+
+    @Override
+    public String toString() {
+        return "DefaultBuffer{ " +
+               "segment: " + segment + ", " +
+               "writePosition: " + writePosition() + ", " +
+               "readPosition: " + readPosition() +
+               " }";
     }
 }
