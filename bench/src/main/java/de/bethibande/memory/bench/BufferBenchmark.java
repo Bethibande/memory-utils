@@ -40,4 +40,24 @@ public class BufferBenchmark {
         blackhole.consume(state.compositeLarge.getLong(0));
     }
 
+    @Benchmark
+    public void fastCompositeSetLong(final FastCompositeBufferState state) {
+        state.composite.set(state.capacity - 4, 1234567890123456789L);
+    }
+
+    @Benchmark
+    public void fastCompositeGetLong(final FastCompositeBufferState state, final Blackhole blackhole) {
+        blackhole.consume(state.composite.getLong(state.capacity - 4));
+    }
+
+    @Benchmark
+    public void fastCompositeSetLongNoBoundary(final FastCompositeBufferState state) {
+        state.composite.set(0, 1234567890123456789L);
+    }
+
+    @Benchmark
+    public void fastCompositeGetLongNoBoundary(final FastCompositeBufferState state, final Blackhole blackhole) {
+        blackhole.consume(state.composite.getLong(0));
+    }
+
 }

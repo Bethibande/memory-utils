@@ -5,19 +5,23 @@ import de.bethibande.memory.impl.CompositeBuffer;
 public class Test {
 
     static void main() {
-        final Buffer a = Buffer.direct(4);
-        final Buffer b = Buffer.direct(4);
+        final long capacity = (long) Math.pow(2, 16);
+        final Buffer a = Buffer.direct(capacity);
+        final Buffer b = Buffer.direct(capacity);
 
-        final CompositeBuffer composite = (CompositeBuffer) Buffer.composite(a, b);
+        final CompositeBuffer composite = Buffer.fastComposite(16, a, b);
+        composite.set(capacity - 4, 12345L);
 
-        composite.write(12345L);
-        final Buffer slice = composite.slice(0, 8);
+        System.out.println(composite);
 
-        final Buffer c = Buffer.direct(8);
-        composite.expand(c, 1);
+        //composite.write(12345L);
+        //final Buffer slice = composite.slice(0, 8);
 
-        System.out.println(slice.readLong());
-        System.out.println(composite.capacity());
+        //final Buffer c = Buffer.direct(4);
+        //composite.expand(c, 1);
+
+        //System.out.println(slice.readLong());
+        //System.out.println(composite.capacity());
     }
 
 }

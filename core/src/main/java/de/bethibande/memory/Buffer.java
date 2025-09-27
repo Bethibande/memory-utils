@@ -1,7 +1,8 @@
 package de.bethibande.memory;
 
-import de.bethibande.memory.impl.DefaultBuffer;
 import de.bethibande.memory.impl.CompositeBuffer;
+import de.bethibande.memory.impl.DefaultBuffer;
+import de.bethibande.memory.impl.FastCompositeBuffer;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -17,8 +18,16 @@ public interface Buffer extends Gettable, Settable, Readable, Writable, Sliceabl
         return new DefaultBuffer(MemorySegment.ofBuffer(ByteBuffer.allocate(capacity)));
     }
 
-    static Buffer composite(final Buffer... buffers) {
+    static CompositeBuffer composite(final Buffer... buffers) {
         return new CompositeBuffer(buffers);
+    }
+
+    static FastCompositeBuffer fastComposite(final int exponent, final Buffer... buffers) {
+        return new FastCompositeBuffer(buffers, exponent);
+    }
+
+    static FastCompositeBuffer fastComposite(final int exponent, final int initialBufferCount) {
+        return new FastCompositeBuffer(initialBufferCount, exponent);
     }
 
     long capacity();

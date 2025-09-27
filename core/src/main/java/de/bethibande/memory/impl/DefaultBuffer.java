@@ -9,9 +9,11 @@ import java.nio.ByteBuffer;
 public class DefaultBuffer extends AbstractBuffer {
 
     private final MemorySegment segment;
+    private final long capacity;
 
     public DefaultBuffer(final MemorySegment segment) {
         this.segment = segment;
+        this.capacity = segment.byteSize();
     }
 
     @Override
@@ -50,7 +52,7 @@ public class DefaultBuffer extends AbstractBuffer {
 
     @Override
     public long capacity() {
-        return this.segment.byteSize();
+        return this.capacity;
     }
 
     @Override

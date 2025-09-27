@@ -7,10 +7,10 @@ import java.util.List;
 
 public class CompositeBuffer extends AbstractBuffer {
 
-    private CompositeRegion[] regions;
-    private long[] index;
+    protected CompositeRegion[] regions;
+    protected long[] index;
 
-    private long size;
+    protected long size;
 
     public CompositeBuffer(final Buffer[] buffers) {
         this.regions = new CompositeRegion[buffers.length];
@@ -19,11 +19,15 @@ public class CompositeBuffer extends AbstractBuffer {
         this.size = calculateSize(this.regions);
     }
 
+    protected CompositeRegion region(final Buffer buffer, final long offset) {
+        return new CompositeRegion(buffer, offset);
+    }
+
     private void init(final Buffer[] buffers) {
         long offset = 0;
         for (int i = 0; i < regions.length; i++) {
             final Buffer buffer = buffers[i];
-            final CompositeRegion region = new CompositeRegion(buffer, offset);
+            final CompositeRegion region = region(buffer, offset);
             this.regions[i] = region;
             this.index[i] = offset;
             offset += buffer.capacity();
@@ -59,7 +63,7 @@ public class CompositeBuffer extends AbstractBuffer {
             System.arraycopy(this.regions, 0, regions, 0, index);
         }
 
-        final CompositeRegion newRegion = new CompositeRegion(buffer, 0);
+        final CompositeRegion newRegion = region(buffer, 0);
         regions[index] = newRegion;
 
         if (index < this.regions.length) {
@@ -126,10 +130,14 @@ public class CompositeBuffer extends AbstractBuffer {
         return regions[low];
     }
 
+    protected byte getByte(final long position, final CompositeRegion region) {
+        return region.buffer().getByte(region.pos(position));
+    }
+
     @Override
     public byte getByte(final long position) {
         final CompositeRegion region = regionAt(position);
-        return region.buffer().getByte(position - region.offset());
+        return getByte(position, region);
     }
 
     @Override
@@ -152,40 +160,52 @@ public class CompositeBuffer extends AbstractBuffer {
         }
     }
 
-    @Override
-    public short getShort(final long position) {
-        final CompositeRegion region = regionAt(position);
+    protected short getShort(final long position, final CompositeRegion region) {
         if (region.canFit(position, 2)) {
-            return region.buffer().getShort(position - region.offset());
+            return region.buffer().getShort(region.pos(position));
         } else {
-            final byte a = getByte(position);
+            final byte a = getByte(position, region);
             final byte b = getByte(position + 1);
             return (short) (((a & 0xFF) << 8) | (b & 0xFF));
         }
     }
 
     @Override
-    public int getInt(final long position) {
+    public short getShort(final long position) {
         final CompositeRegion region = regionAt(position);
+        return getShort(position, region);
+    }
+
+    protected int getInt(final long position, final CompositeRegion region) {
         if (region.canFit(position, 4)) {
-            return region.buffer().getInt(position - region.offset());
+            return region.buffer().getInt(region.pos(position));
         } else {
-            final short a = getShort(position);
+            final short a = getShort(position, region);
             final short b = getShort(position + 2);
             return ((a & 0xFFFF) << 16) | (b & 0xFFFF);
         }
     }
 
     @Override
-    public long getLong(final long position) {
+    public int getInt(final long position) {
         final CompositeRegion region = regionAt(position);
+        return getInt(position, region);
+    }
+
+    protected long getLong(final long position, final CompositeRegion region) {
         if (region.canFit(position, 8)) {
-            return region.buffer().getLong(position - region.offset());
+            return region.buffer().getLong(region.pos(position));
         } else {
-            final int a = getInt(position);
+            final int a = getInt(position, region);
             final int b = getInt(position + 4);
             return ((long) a << 32) | (b & 0xFFFFFFFFL);
         }
+    }
+
+    @Override
+    public long getLong(final long position) {
+        final CompositeRegion region = regionAt(position);
+        return getLong(position, region);
     }
 
     @Override
@@ -286,43 +306,59 @@ public class CompositeBuffer extends AbstractBuffer {
         }
     }
 
+    protected void set(final long position, final byte b, final CompositeRegion region) {
+        region.buffer().set(region.pos(position), b);
+    }
+
     @Override
     public void set(final long position, final byte b) {
         final CompositeRegion region = regionAt(position);
-        region.buffer().set(region.pos(position), b);
+        set(position, b, region);
+    }
+
+    protected void set(final long position, final short s, final CompositeRegion region) {
+        if (region.canFit(position, 2)) {
+            region.buffer().set(region.pos(position), s);
+        } else {
+            set(position, (byte) (s >> 8), region);
+            set(position + 1, (byte) (s & 0xFF));
+        }
     }
 
     @Override
     public void set(final long position, final short s) {
         final CompositeRegion region = regionAt(position);
-        if (region.canFit(position, 2)) {
-            region.buffer().set(region.pos(position), s);
+        set(position, s, region);
+    }
+
+    protected void set(final long position, final int i, final CompositeRegion region) {
+        if (region.canFit(position, 4)) {
+            region.buffer().set(region.pos(position), i);
         } else {
-            set(position, (byte) (s >> 8));
-            set(position + 1, (byte) (s & 0xFF));
+            set(position, (short) (i >> 16), region);
+            set(position + 2, (short) (i & 0xFFFF));
         }
     }
 
     @Override
     public void set(final long position, final int i) {
         final CompositeRegion region = regionAt(position);
-        if (region.canFit(position, 4)) {
-            region.buffer().set(region.pos(position), i);
+        set(position, i, region);
+    }
+
+    protected void set(final long position, final long l, final CompositeRegion region) {
+        if (region.canFit(position, 8)) {
+            region.buffer().set(region.pos(position), l);
         } else {
-            set(position, (short) (i >> 16));
-            set(position + 2, (short) (i & 0xFFFF));
+            set(position, (int) (l >> 32), region);
+            set(position + 4, (int) (l & 0xFFFFFFFFL));
         }
     }
 
     @Override
     public void set(final long position, final long l) {
         final CompositeRegion region = regionAt(position);
-        if (region.canFit(position, 8)) {
-            region.buffer().set(region.pos(position), l);
-        } else {
-            set(position, (int) (l >> 32));
-            set(position + 4, (int) (l & 0xFFFFFFFFL));
-        }
+        set(position, l, region);
     }
 
     @Override
