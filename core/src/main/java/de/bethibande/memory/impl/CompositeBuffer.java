@@ -7,12 +7,20 @@ import java.util.List;
 
 public class CompositeBuffer extends AbstractBuffer {
 
+    private final CompositeBuffer parent;
+
     protected CompositeRegion[] regions;
     protected long[] index;
 
     protected long size;
 
     public CompositeBuffer(final Buffer[] buffers) {
+        this(buffers, null);
+    }
+
+    public CompositeBuffer(final Buffer[] buffers, final CompositeBuffer parent) {
+        this.parent = parent;
+
         this.regions = new CompositeRegion[buffers.length];
         this.index = new long[buffers.length];
         init(buffers);
@@ -98,7 +106,7 @@ public class CompositeBuffer extends AbstractBuffer {
         }
 
         retain();
-        return new CompositeBuffer(buffers.toArray(Buffer[]::new));
+        return new CompositeBuffer(buffers.toArray(Buffer[]::new), this);
     }
 
     @Override
@@ -110,6 +118,10 @@ public class CompositeBuffer extends AbstractBuffer {
     protected void free() {
         for (int i = 0; i < regions.length; i++) { // No enhanced for loop; iterators are slower and litter the heap
             regions[i].buffer().release();
+        }
+
+        if (this.parent != null) {
+            this.parent.release();
         }
     }
 
