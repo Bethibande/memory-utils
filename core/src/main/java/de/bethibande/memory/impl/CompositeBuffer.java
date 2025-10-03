@@ -90,10 +90,11 @@ public class CompositeBuffer extends AbstractBuffer {
 
             // Always slicing the buffer will ensure we always get a buffer with the correct capacity.
             // It will also increase the reference count of the buffer and decrease it when the slice is released.
-            buffers.add(buffer.slice(region.pos(currentOffset), Math.min(remainingBytes, buffer.capacity())));
+            final long sliceOffset = region.pos(currentOffset);
+            buffers.add(buffer.slice(sliceOffset, Math.min(remainingBytes, buffer.capacity() - sliceOffset)));
 
-            currentOffset += buffer.capacity();
-            remainingBytes -= buffer.capacity();
+            currentOffset += buffer.capacity() - sliceOffset;
+            remainingBytes -= buffer.capacity() - sliceOffset;
         }
 
         retain();
