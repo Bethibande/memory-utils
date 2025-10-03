@@ -4,8 +4,8 @@ import de.bethibande.memory.Buffer;
 
 public class FastCompositeBuffer extends CompositeBuffer {
 
-    private final int exponent;
-    private final int bitMask;
+    protected final int exponent;
+    protected final int bitMask;
 
     public FastCompositeBuffer(final int initialBufferCount, final int exponent) {
         final int bufferSize = 1 << exponent;
@@ -68,5 +68,10 @@ public class FastCompositeBuffer extends CompositeBuffer {
     @Override
     protected CompositeRegion regionAt(final long offset) {
         return super.regions[(int) (offset >> exponent)];
+    }
+
+    @Override
+    protected String className() {
+        return "FastCompositeBuffer";
     }
 }

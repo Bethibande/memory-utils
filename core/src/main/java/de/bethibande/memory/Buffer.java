@@ -3,6 +3,7 @@ package de.bethibande.memory;
 import de.bethibande.memory.impl.CompositeBuffer;
 import de.bethibande.memory.impl.DefaultBuffer;
 import de.bethibande.memory.impl.FastCompositeBuffer;
+import de.bethibande.memory.impl.RingBuffer;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -28,6 +29,14 @@ public interface Buffer extends Gettable, Settable, Readable, Writable, Sliceabl
 
     static FastCompositeBuffer fastComposite(final int exponent, final int initialBufferCount) {
         return new FastCompositeBuffer(initialBufferCount, exponent);
+    }
+
+    static RingBuffer ring(final int exponent, final int bufferCount) {
+        return new RingBuffer(bufferCount, exponent);
+    }
+
+    static RingBuffer ring(final int exponent, final Buffer... buffers) {
+        return new RingBuffer(buffers, exponent);
     }
 
     long capacity();

@@ -73,6 +73,9 @@ public class CompositeBuffer extends AbstractBuffer {
         this.regions = regions;
         this.index = updateIndex(regions);
         this.size = calculateSize(regions);
+        if (readPosition() >= newRegion.offset()) {
+            readPosition(readPosition() + newRegion.buffer().capacity()); // Move read position to ensure it's still reading from the same buffer
+        }
     }
 
     @Override
@@ -440,12 +443,19 @@ public class CompositeBuffer extends AbstractBuffer {
         set(writeIdx(2), (short) c);
     }
 
+    /**
+     * Override to change the class name returned by toString.
+     */
+    protected String className() {
+        return "CompositeBuffer";
+    }
+
     @Override
     public String toString() {
-        return "CompositeBuffer{ " +
-               "buffers: " + regions.length + ", " +
-               "writePosition: " + writePosition() + ", " +
-               "readPosition: " + readPosition() +
-               " }";
+        return className() + "{ " +
+                "buffers: " + regions.length + ", " +
+                "writePosition: " + writePosition() + ", " +
+                "readPosition: " + readPosition() +
+                " }";
     }
 }
