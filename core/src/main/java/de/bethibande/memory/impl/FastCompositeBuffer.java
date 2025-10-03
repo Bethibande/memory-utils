@@ -38,6 +38,10 @@ public class FastCompositeBuffer extends CompositeBuffer {
         }
     }
 
+    protected Buffer allocateBuffer() {
+        return Buffer.direct(expectedRegionSize());
+    }
+
     /**
      * Expands the current buffer by allocating a new {@code Buffer} instance with the expected region size
      * and integrating it into the existing buffer structure.
@@ -46,7 +50,7 @@ public class FastCompositeBuffer extends CompositeBuffer {
      * @throws IllegalArgumentException if the capacity of the newly created buffer does not match the expected region size.
      */
     public Buffer expand() {
-        final Buffer buffer = Buffer.direct(expectedRegionSize());
+        final Buffer buffer = allocateBuffer();
         expand(buffer, super.regions.length);
         return buffer;
     }
@@ -66,8 +70,8 @@ public class FastCompositeBuffer extends CompositeBuffer {
     }
 
     @Override
-    protected CompositeRegion regionAt(final long offset) {
-        return super.regions[(int) (offset >> exponent)];
+    protected int bufferIdxAt(final long offset) {
+        return (int) (offset >> exponent);
     }
 
     @Override

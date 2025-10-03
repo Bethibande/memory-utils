@@ -73,7 +73,7 @@ public class CompositeBuffer extends AbstractBuffer {
         this.regions = regions;
         this.index = updateIndex(regions);
         this.size = calculateSize(regions);
-        if (readPosition() >= newRegion.offset()) {
+        if (bufferIdxAt(readPosition()) >= index) {
             readPosition(readPosition() + newRegion.buffer().capacity()); // Move read position to ensure it's still reading from the same buffer
         }
     }
@@ -116,7 +116,7 @@ public class CompositeBuffer extends AbstractBuffer {
         return regionAt(offset).buffer();
     }
 
-    protected CompositeRegion regionAt(final long offset) {
+    protected int bufferIdxAt(final long offset) {
         int low = 0;
         int high = index.length - 1;
         while (low <= high) {
@@ -127,10 +127,14 @@ public class CompositeBuffer extends AbstractBuffer {
             } else if (midVal > offset) {
                 high = mid - 1;
             } else {
-                return regions[mid];
+                return mid;
             }
         }
-        return regions[low];
+        return low;
+    }
+
+    protected CompositeRegion regionAt(final long offset) {
+        return regions[bufferIdxAt(offset)];
     }
 
     protected byte getByte(final long position, final CompositeRegion region) {

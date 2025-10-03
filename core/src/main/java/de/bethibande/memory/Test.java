@@ -14,16 +14,16 @@ public class Test {
         System.out.println(ring);
 
 
-        /*for (int i = 0; i < 10_000; i++) {
-            ring.write(1234L);
-        }
+        ring.write(1L);
+        System.out.println(ring);
 
-        final long start = System.currentTimeMillis();
-        for (int i = 0; i < 100_000_000; i++) {
-            ring.write(235434L);
-        }
-        final long time = System.currentTimeMillis() - start;
-        System.out.println("Time: " + time + " ms");*/
+        ring.write(2L);
+        System.out.println(ring);
+
+        ring.readLong();
+        ring.write(3L);
+
+        System.out.println(b.getLong(0));
 
         System.out.println(ring);
     }

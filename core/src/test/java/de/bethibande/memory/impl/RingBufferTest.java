@@ -28,4 +28,24 @@ public class RingBufferTest {
         assertEquals(2L, b.getLong(0));
     }
 
+    @Test
+    public void testExpandOnWrite() {
+        final Buffer a = Buffer.direct(8);
+        final Buffer b = Buffer.direct(8);
+        final Buffer buffer = Buffer.ring(3, a, b);
+
+        buffer.write(1L);
+        buffer.write(2L);
+
+        assertEquals(1L, a.getLong(0));
+        assertEquals(2L, b.getLong(0));
+        assertEquals(16L, buffer.capacity());
+
+        buffer.write(3L);
+
+        assertEquals(1L, a.getLong(0));
+        assertEquals(2L, b.getLong(0));
+        assertEquals(24L, buffer.capacity());
+    }
+
 }
