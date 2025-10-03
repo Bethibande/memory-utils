@@ -42,7 +42,7 @@ public class CompositeBuffer extends AbstractBuffer {
         }
     }
 
-    private long calculateSize(final CompositeRegion[] regions) {
+    protected long calculateSize(final CompositeRegion[] regions) {
         long size = 0;
         for (int i = 0; i < regions.length; i++) {
             size += regions[i].buffer().capacity();
@@ -50,7 +50,7 @@ public class CompositeBuffer extends AbstractBuffer {
         return size;
     }
 
-    private long[] updateIndex(final CompositeRegion[] regions) {
+    protected long[] updateIndex(final CompositeRegion[] regions) {
         final long[] output = new long[regions.length];
 
         long offset = 0;

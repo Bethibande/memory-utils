@@ -1,9 +1,6 @@
 package de.bethibande.memory;
 
-import de.bethibande.memory.impl.CompositeBuffer;
-import de.bethibande.memory.impl.DefaultBuffer;
-import de.bethibande.memory.impl.FastCompositeBuffer;
-import de.bethibande.memory.impl.RingBuffer;
+import de.bethibande.memory.impl.*;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -38,6 +35,12 @@ public interface Buffer extends Gettable, Settable, Readable, Writable, Sliceabl
     static RingBuffer ring(final int exponent, final Buffer... buffers) {
         return new RingBuffer(buffers, exponent);
     }
+
+    static ExpandingBuffer expanding(final int exponent) {
+        final Allocator allocator = new PooledAllocator(1L << exponent);
+        return new ExpandingBuffer(1, exponent, allocator);
+    }
+
 
     long capacity();
 

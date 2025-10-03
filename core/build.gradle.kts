@@ -5,10 +5,15 @@ plugins {
 }
 
 group = "com.bethibande.memory"
-version = "1.1"
+version = "1.2"
 
 repositories {
     mavenCentral()
+}
+
+dependencies {
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:6.0.0")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.test {
