@@ -20,6 +20,10 @@ public class JavaNioBuffer extends AbstractBuffer {
         this.buffer = buffer;
     }
 
+    public ByteBuffer unwrap() {
+        return buffer.duplicate();
+    }
+
     @Override
     public long capacity() {
         return buffer.capacity();
