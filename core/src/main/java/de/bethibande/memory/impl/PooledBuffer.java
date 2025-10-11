@@ -2,7 +2,11 @@ package de.bethibande.memory.impl;
 
 import java.lang.foreign.MemorySegment;
 
-public class PooledBuffer extends DefaultBuffer {
+/**
+ * PooledBuffer is a subclass of DefaultBuffer owned by a {@link PooledAllocator}.
+ * This class is for internal use only.
+ */
+class PooledBuffer extends DefaultBuffer {
 
     protected final PooledAllocator allocator;
 
