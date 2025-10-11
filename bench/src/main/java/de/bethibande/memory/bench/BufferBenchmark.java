@@ -13,6 +13,16 @@ import java.util.concurrent.TimeUnit;
 public class BufferBenchmark {
 
     @Benchmark
+    public void nioBufferSetLong(final JavaNioBufferState state) {
+        state.buffer.set(0, 1234567890123456789L);
+    }
+
+    @Benchmark
+    public void nioBufferGetLong(final JavaNioBufferState state, final Blackhole blackhole) {
+        blackhole.consume(state.buffer.getLong(0));
+    }
+
+    @Benchmark
     public void defaultSetLong(final DefaultBufferState state) {
         state.buffer.set(0, 1234567890123456789L);
     }

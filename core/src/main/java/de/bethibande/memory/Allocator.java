@@ -9,7 +9,7 @@ public interface Allocator {
         return new DirectAllocator();
     }
 
-    static PooledAllocator pooled(final long size) {
+    static PooledAllocator pooled(final int size) {
         return new PooledAllocator(size);
     }
 

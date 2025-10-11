@@ -24,7 +24,7 @@ public class FastCompositeBuffer extends CompositeBuffer {
         final int bufferSize = 1 << exponent;
         final Buffer[] buffers = new Buffer[initialBufferCount];
         for (int i = 0; i < initialBufferCount; i++) {
-            buffers[i] = Buffer.direct(bufferSize);
+            buffers[i] = Buffer.directNio(bufferSize);
         }
 
         this(buffers, exponent);
@@ -47,7 +47,7 @@ public class FastCompositeBuffer extends CompositeBuffer {
         validateBufferSizes(buffers);
     }
 
-    public long expectedRegionSize() {
+    public int expectedRegionSize() {
         return bitMask + 1;
     }
 
@@ -60,7 +60,7 @@ public class FastCompositeBuffer extends CompositeBuffer {
     }
 
     protected Buffer allocateBuffer() {
-        return Buffer.direct(expectedRegionSize());
+        return Buffer.directNio(expectedRegionSize());
     }
 
     /**

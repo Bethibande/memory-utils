@@ -12,6 +12,10 @@ public interface Buffer extends Gettable, Settable, Readable, Writable, Sliceabl
         return new DefaultBuffer(Arena.global().allocate(capacity));
     }
 
+    static Buffer directNio(final int capacity) {
+        return new JavaNioBuffer(ByteBuffer.allocateDirect(capacity));
+    }
+
     static Buffer allocate(final int capacity) {
         return new DefaultBuffer(MemorySegment.ofBuffer(ByteBuffer.allocate(capacity)));
     }
@@ -37,7 +41,7 @@ public interface Buffer extends Gettable, Settable, Readable, Writable, Sliceabl
     }
 
     static ExpandingBuffer expanding(final int exponent) {
-        final Allocator allocator = new PooledAllocator(1L << exponent);
+        final Allocator allocator = new PooledAllocator(1 << exponent);
         return new ExpandingBuffer(1, exponent, allocator);
     }
 

@@ -3,8 +3,7 @@ package de.bethibande.memory.impl;
 import de.bethibande.memory.Allocator;
 import de.bethibande.memory.Buffer;
 
-import java.lang.foreign.Arena;
-import java.lang.foreign.MemorySegment;
+import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -13,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * A pooled allocator designed to manage and reuse memory buffers efficiently.
  * Buffers are allocated with a specified size, reused through an internal pool, and released back into the pool
  * when no longer needed.
+ * The allocated buffers will be an instance of {@link JavaNioBuffer}.
  * <br>
  * This allocator enhances performance by limiting repeated memory allocation and deallocation, while
  * maintaining a consistent size for memory buffers.
@@ -21,15 +21,15 @@ public class PooledAllocator implements Allocator {
 
     private final AtomicInteger allocated = new AtomicInteger();
     private final Queue<PooledBuffer> pool = new ArrayDeque<>();
-    private final long allocationSize;
+    private final int allocationSize;
 
-    public PooledAllocator(final long allocationSize) {
+    public PooledAllocator(final int allocationSize) {
         this.allocationSize = allocationSize;
     }
 
     protected Buffer doAllocate() {
         allocated.incrementAndGet();
-        return new PooledBuffer(Arena.global().allocate(allocationSize), this);
+        return new PooledBuffer(ByteBuffer.allocateDirect(allocationSize), this);
     }
 
     /**
@@ -75,15 +75,15 @@ public class PooledAllocator implements Allocator {
 
 
     /**
-     * PooledBuffer is a subclass of DefaultBuffer owned by a {@link PooledAllocator}.
+     * PooledBuffer is a subclass of {@link JavaNioBuffer} owned by a {@link PooledAllocator}.
      * This class is for internal use only.
      */
-    protected static class PooledBuffer extends DefaultBuffer {
+    protected static class PooledBuffer extends JavaNioBuffer {
 
         protected final PooledAllocator allocator;
 
-        public PooledBuffer(final MemorySegment segment, final PooledAllocator allocator) {
-            super(segment);
+        public PooledBuffer(final ByteBuffer buffer, final PooledAllocator allocator) {
+            super(buffer);
             this.allocator = allocator;
         }
 
