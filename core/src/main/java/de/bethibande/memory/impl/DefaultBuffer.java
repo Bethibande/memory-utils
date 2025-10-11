@@ -6,6 +6,16 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 import java.nio.ByteBuffer;
 
+/**
+ * A concrete implementation of the {@link AbstractBuffer} that leverages
+ * a {@link MemorySegment} for low-level memory management and operations.
+ * This class provides methods for reading, writing, and manipulating
+ * binary and primitive data in a buffer using the memory segment API.
+ * <br>
+ * It also provides some special methods to check the properties of the underlying memory segment such as {@link #isReadOnly()},
+ * {@link #isMapped()}, {@link #isNative()}, and {@link #address()}. There are also methods to convert the underlying memory segment
+ * to a {@link ByteBuffer} and to create a read-only copy (without a mem-copy) of the underlying memory segment.
+ */
 public class DefaultBuffer extends AbstractBuffer {
 
     private final MemorySegment segment;

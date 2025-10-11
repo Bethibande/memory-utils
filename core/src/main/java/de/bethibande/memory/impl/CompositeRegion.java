@@ -2,6 +2,10 @@ package de.bethibande.memory.impl;
 
 import de.bethibande.memory.Buffer;
 
+/**
+ * CompositeRegion is a simple data structure that represents a logical region of memory within a {@link CompositeBuffer}.
+ * This class is meant for internal use only and should not be used by external code.
+ */
 public class CompositeRegion {
 
     private final Buffer buffer;

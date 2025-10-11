@@ -5,6 +5,26 @@ import de.bethibande.memory.Buffer;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * CompositeBuffer is a buffer implementation that combines multiple {@link Buffer} objects into a single
+ * logical structure. It provides methods for efficiently interacting with data across multiple underlying
+ * buffers, enabling seamless access and manipulation as if it were a contiguous block of memory.
+ * <br>
+ * If there is no need to combine buffers of different sizes, consider using {@link FastCompositeBuffer} instead.
+ * <br>
+ * CompositeBuffer is designed for scenarios where the data size exceeds the capacity of a single buffer,
+ * allowing for segmented memory management while maintaining a unified interface for data operations.
+ * <br>
+ * This class extends {@link AbstractBuffer} and implements the {@code Buffer} interface with additional
+ * composite-specific functionality. It manages an array of {@code Buffer} objects, tracks the relationship
+ * between them, and provides capabilities for reading, writing, slicing, expanding, and querying data.
+ * <br>
+ * Internally, it maintains information about buffer regions, offsets, sizes, and indexing to optimize
+ * operations across the composite structure.
+ * <br>
+ * Expanding the buffer at any position will not affect sliced buffers as they directly reference their backing buffers instead of the composite buffer.
+ * As such, sliced buffers will also be composite buffers spanning across the backing buffers they need to access.
+ */
 public class CompositeBuffer extends AbstractBuffer {
 
     private final CompositeBuffer parent;

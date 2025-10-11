@@ -2,6 +2,9 @@ package de.bethibande.memory.impl;
 
 import de.bethibande.memory.Buffer;
 
+/**
+ * This is the custom implementation of {@link CompositeRegion} for use in {@link FastCompositeBuffer}.
+ */
 public class FastCompositeRegion extends CompositeRegion {
 
     private final int mask;

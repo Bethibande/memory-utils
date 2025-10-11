@@ -4,6 +4,7 @@ import de.bethibande.memory.Allocator;
 import de.bethibande.memory.Buffer;
 
 import java.lang.foreign.Arena;
+import java.lang.foreign.MemorySegment;
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -70,6 +71,26 @@ public class PooledAllocator implements Allocator {
      */
     public int poolSize() {
         return allocated.get();
+    }
+
+
+    /**
+     * PooledBuffer is a subclass of DefaultBuffer owned by a {@link PooledAllocator}.
+     * This class is for internal use only.
+     */
+    protected static class PooledBuffer extends DefaultBuffer {
+
+        protected final PooledAllocator allocator;
+
+        public PooledBuffer(final MemorySegment segment, final PooledAllocator allocator) {
+            super(segment);
+            this.allocator = allocator;
+        }
+
+        @Override
+        protected void free() {
+            this.allocator.release(this);
+        }
     }
 
 }

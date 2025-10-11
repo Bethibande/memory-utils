@@ -4,6 +4,13 @@ import de.bethibande.memory.Buffer;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * AbstractBuffer is an abstract implementation of the {@link Buffer} interface.
+ * It implements reference counting and provides basic read and write position tracking.
+ * <br>
+ * Please note that there are no bounds checks implemented for the read and write positions.
+ * If used incorrectly, the buffer may become corrupted.
+ */
 public abstract class AbstractBuffer implements Buffer {
 
     private volatile long writePosition;
