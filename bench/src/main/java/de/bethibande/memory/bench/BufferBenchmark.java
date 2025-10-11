@@ -8,6 +8,8 @@ import java.util.concurrent.TimeUnit;
 @Fork(value = 1, warmups = 0)
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
+//@BenchmarkMode(Mode.AverageTime)
+//@OutputTimeUnit(TimeUnit.NANOSECONDS)
 public class BufferBenchmark {
 
     @Benchmark
@@ -17,6 +19,16 @@ public class BufferBenchmark {
 
     @Benchmark
     public void defaultGetLong(final DefaultBufferState state, final Blackhole blackhole) {
+        blackhole.consume(state.buffer.getLong(0));
+    }
+
+    @Benchmark
+    public void byteBufferSetLong(final ByteBufferState state) {
+        state.buffer.putLong(0, 1234567890123456789L);
+    }
+
+    @Benchmark
+    public void byteBufferGetLong(final ByteBufferState state, final Blackhole blackhole) {
         blackhole.consume(state.buffer.getLong(0));
     }
 
