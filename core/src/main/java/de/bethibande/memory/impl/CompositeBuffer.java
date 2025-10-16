@@ -85,6 +85,18 @@ public class CompositeBuffer extends AbstractBuffer {
         return output;
     }
 
+    /**
+     * Returns an array of {@link CompositeRegion} instances that represent the
+     * logical regions of memory within this {@code CompositeBuffer}.
+     * <br><br>
+     * Do NOT modify the returned array or its values. Changing the buffer offsets for example will corrupt this buffer.
+     *
+     * @return an array of {@code CompositeRegion} objects associated with this buffer
+     */
+    public CompositeRegion[] regions() {
+        return regions;
+    }
+
     public void expand(final Buffer buffer, final int index) {
         final CompositeRegion[] regions = new CompositeRegion[this.regions.length + 1];
         if (index > 0) {
