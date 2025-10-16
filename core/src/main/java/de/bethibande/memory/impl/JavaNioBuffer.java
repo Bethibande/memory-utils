@@ -81,9 +81,9 @@ public class JavaNioBuffer extends AbstractBuffer {
 
     protected int readIdx(final int bytes) {
         try {
-            return buffer.position();
+            return (int) readPosition();
         } finally {
-            buffer.position(buffer.position() + bytes);
+            readPosition(readPosition() + bytes);
         }
     }
 
@@ -195,9 +195,9 @@ public class JavaNioBuffer extends AbstractBuffer {
 
     protected int writeIdx(final int bytes) {
         try {
-            return buffer.position();
+            return (int) writePosition();
         } finally {
-            buffer.position(buffer.position() + bytes);
+            writePosition(writePosition() + bytes);
         }
     }
 

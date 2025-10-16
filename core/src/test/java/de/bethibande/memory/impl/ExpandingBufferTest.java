@@ -9,7 +9,7 @@ public class ExpandingBufferTest {
 
     @Test
     public void testAllocate() {
-        final PooledAllocator allocator = Allocator.pooled(1L << 3);
+        final PooledAllocator allocator = Allocator.pooled(1 << 3);
         final ExpandingBuffer buffer = new ExpandingBuffer(1, 3, allocator);
 
         buffer.write(1L);
@@ -23,7 +23,7 @@ public class ExpandingBufferTest {
 
     @Test
     public void testCompact() {
-        final PooledAllocator allocator = Allocator.pooled(1L << 3);
+        final PooledAllocator allocator = Allocator.pooled(1 << 3);
         final ExpandingBuffer buffer = new ExpandingBuffer(1, 3, allocator);
 
         buffer.write(1L);
