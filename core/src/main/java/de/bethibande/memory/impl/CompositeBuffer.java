@@ -116,6 +116,9 @@ public class CompositeBuffer extends AbstractBuffer {
         if (bufferIdxAt(readPosition()) >= index) {
             readPosition(readPosition() + newRegion.buffer().capacity()); // Move read position to ensure it's still reading from the same buffer
         }
+        if (bufferIdxAt(writePosition()) >= index) {
+            writePosition(writePosition() + newRegion.buffer().capacity()); // Move write position to ensure it's still reading from the same buffer
+        }
     }
 
     @Override

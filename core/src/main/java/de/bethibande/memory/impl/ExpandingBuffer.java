@@ -3,6 +3,8 @@ package de.bethibande.memory.impl;
 import de.bethibande.memory.Allocator;
 import de.bethibande.memory.Buffer;
 
+import static java.lang.Math.max;
+
 /**
  * The {@code ExpandingBuffer} class is a specialized buffer that can dynamically expand its capacity
  * when necessary. It extends {@link FastCompositeBuffer} and is optimized for scenarios requiring
@@ -80,8 +82,12 @@ public class ExpandingBuffer extends FastCompositeBuffer {
         }
 
         final int remainingBufferCount = this.regions.length - bufferCount;
-        final CompositeRegion[] regions = new CompositeRegion[remainingBufferCount];
+        final CompositeRegion[] regions = new CompositeRegion[max(remainingBufferCount, 1)];
         System.arraycopy(this.regions, bufferCount, regions, 0, remainingBufferCount);
+
+        if (remainingBufferCount == 0) {
+            regions[0] = region(allocateBuffer(), 0);
+        }
 
         this.regions = regions;
         this.index = updateIndex(regions);
