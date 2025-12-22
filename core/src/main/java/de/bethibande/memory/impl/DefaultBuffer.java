@@ -66,6 +66,31 @@ public class DefaultBuffer extends AbstractBuffer {
     }
 
     @Override
+    public void get(final long position, final ByteBuffer buffer, final int offset, final int length) {
+        buffer.put(offset, this.segment.asSlice(position, length).asByteBuffer(), 0, length);
+    }
+
+    @Override
+    public void read(final ByteBuffer buffer) {
+        final int bytes = (int) Math.min(buffer.remaining(), readable());
+        get(readPosition(), buffer, buffer.position(), bytes);
+        readPosition(readPosition() + bytes);
+    }
+
+    @Override
+    public void set(final long position, final ByteBuffer buffer, final int offset, final int length) {
+        final MemorySegment src = MemorySegment.ofBuffer(buffer);
+        MemorySegment.copy(src, offset, this.segment, position, length);
+    }
+
+    @Override
+    public void write(final ByteBuffer readable) {
+        final int bytes = (int) Math.min(readable.remaining(), writable());
+        set(writePosition(), readable, readable.position(), bytes);
+        writePosition(writePosition() + bytes);
+    }
+
+    @Override
     public void get(final long position, final byte[] bytes) {
         MemorySegment.ofArray(bytes).copyFrom(this.segment.asSlice(position, bytes.length));
     }
@@ -285,9 +310,9 @@ public class DefaultBuffer extends AbstractBuffer {
     @Override
     public String toString() {
         return "DefaultBuffer{ " +
-               "segment: " + segment + ", " +
-               "writePosition: " + writePosition() + ", " +
-               "readPosition: " + readPosition() +
-               " }";
+                "segment: " + segment + ", " +
+                "writePosition: " + writePosition() + ", " +
+                "readPosition: " + readPosition() +
+                " }";
     }
 }

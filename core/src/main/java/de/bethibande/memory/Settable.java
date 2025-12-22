@@ -1,10 +1,14 @@
 package de.bethibande.memory;
 
+import java.nio.ByteBuffer;
+
 public interface Settable {
 
     void set(final long position, final byte[] bytes);
 
     void set(final long position, final byte[] bytes, final int offset, final int length);
+
+    void set(final long position, final ByteBuffer buffer, final int offset, final int length);
 
     void set(final long position, final byte b);
 

@@ -1,10 +1,14 @@
 package de.bethibande.memory;
 
+import java.nio.ByteBuffer;
+
 public interface Writable {
 
     void write(final byte[] bytes);
 
     void write(final byte[] bytes, final int offset, final int length);
+
+    void write(final ByteBuffer readable);
 
     void write(final byte b);
 

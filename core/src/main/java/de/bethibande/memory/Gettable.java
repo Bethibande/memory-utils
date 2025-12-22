@@ -1,10 +1,14 @@
 package de.bethibande.memory;
 
+import java.nio.ByteBuffer;
+
 public interface Gettable {
 
     void get(final long position, final byte[] bytes);
 
     void get(final long position, final byte[] bytes, final int offset, final int length);
+
+    void get(final long position, final ByteBuffer buffer, final int offset, final int length);
 
     byte getByte(final long position);
 

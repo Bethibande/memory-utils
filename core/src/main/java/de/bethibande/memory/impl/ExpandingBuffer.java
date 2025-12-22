@@ -3,6 +3,8 @@ package de.bethibande.memory.impl;
 import de.bethibande.memory.Allocator;
 import de.bethibande.memory.Buffer;
 
+import java.nio.ByteBuffer;
+
 import static java.lang.Math.max;
 
 /**
@@ -107,6 +109,16 @@ public class ExpandingBuffer extends FastCompositeBuffer {
     public void expandAt(final long position) {
         final int idx = bufferIdxAfter(position);
         expand(allocateBuffer(), idx + 1);
+    }
+
+    @Override
+    public void write(final ByteBuffer readable) {
+        final int bytes = readable.remaining();
+        while (bytes > writableAt(writePosition())) {
+            expandAt(writePosition());
+        }
+
+        set(writeIdx(bytes), readable, readable.position(), bytes);
     }
 
     @Override

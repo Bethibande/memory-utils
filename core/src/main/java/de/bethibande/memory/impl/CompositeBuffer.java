@@ -2,6 +2,7 @@ package de.bethibande.memory.impl;
 
 import de.bethibande.memory.Buffer;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -180,6 +181,46 @@ public class CompositeBuffer extends AbstractBuffer {
 
     protected CompositeRegion regionAt(final long offset) {
         return regions[bufferIdxAt(offset)];
+    }
+
+    @Override
+    public void get(final long position, final ByteBuffer src, final int offset, final int length) {
+        final CompositeRegion region = regionAt(position);
+        if (region.canFit(position, length)) {
+            region.buffer().get(position - region.offset(), src, offset, length);
+        } else {
+            final Buffer buffer = region.buffer();
+            final long bytesToRead = buffer.capacity() - (position - region.offset());
+            buffer.get(position - region.offset(), src, offset, (int) bytesToRead);
+
+            // TODO: Remove recursion?
+            get(position + bytesToRead, src, offset + (int) bytesToRead, length - (int) bytesToRead);
+        }
+    }
+
+    @Override
+    public void read(final ByteBuffer buffer) {
+        final int bytes = (int) Math.min(buffer.remaining(), readable());
+        get(read(bytes), buffer, buffer.position(), bytes);
+    }
+
+    @Override
+    public void set(final long position, final ByteBuffer src, final int offset, final int length) {
+        final CompositeRegion region = regionAt(position);
+        if (region.canFit(position, length)) {
+            region.buffer().set(region.pos(position), src, offset, length);
+        } else {
+            final Buffer buffer = region.buffer();
+            final long bytesToWrite = buffer.capacity() - region.pos(position);
+            buffer.set(region.pos(position), src, offset, (int) bytesToWrite);
+            set(position + bytesToWrite, src, offset + (int) bytesToWrite, length - (int) bytesToWrite);
+        }
+    }
+
+    @Override
+    public void write(final ByteBuffer readable) {
+        final int bytes = readable.remaining();
+        set(writeIdx(bytes), readable, readable.position(), bytes);
     }
 
     protected byte getByte(final long position, final CompositeRegion region) {

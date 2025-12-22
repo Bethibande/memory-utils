@@ -30,6 +30,28 @@ public class JavaNioBuffer extends AbstractBuffer {
     }
 
     @Override
+    public void get(final long position, final ByteBuffer buffer, final int offset, final int length) {
+        buffer.put(offset, this.buffer, (int) position, length);
+    }
+
+    @Override
+    public void read(final ByteBuffer buffer) {
+        final int bytes = (int) Math.min(buffer.remaining(), readable());
+        get(readIdx(bytes), buffer, buffer.position(), bytes);
+    }
+
+    @Override
+    public void set(final long position, final ByteBuffer buffer, final int offset, final int length) {
+        this.buffer.put((int) position, buffer, offset, length);
+    }
+
+    @Override
+    public void write(final ByteBuffer buffer) {
+        final int bytes = (int) Math.min(buffer.remaining(), writable());
+        set(writeIdx(bytes), buffer, buffer.position(), bytes);
+    }
+
+    @Override
     public void get(final long position, final byte[] bytes) {
         buffer.get((int) position, bytes);
     }
