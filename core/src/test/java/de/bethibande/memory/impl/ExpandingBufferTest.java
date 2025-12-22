@@ -44,4 +44,18 @@ public class ExpandingBufferTest {
         assertEquals(1, allocator.queueSize());
     }
 
+    @Test
+    public void testCompactNotEmpty() {
+        final PooledAllocator allocator = Allocator.pooled(1 << 3);
+        final ExpandingBuffer buffer = new ExpandingBuffer(1, 3, allocator);
+        buffer.writePosition(8);
+        buffer.readPosition(8);
+
+        buffer.compact();
+
+        assertEquals(8, buffer.capacity());
+        assertEquals(0, buffer.writePosition());
+        assertEquals(0, buffer.readPosition());
+    }
+
 }
