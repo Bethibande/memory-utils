@@ -77,6 +77,16 @@ public class FastCompositeBuffer extends CompositeBuffer {
     }
 
     @Override
+    protected long[] updateIndex(final CompositeRegion[] regions) {
+        return null;
+    }
+
+    @Override
+    protected long calculateSize(final CompositeRegion[] regions) {
+        return (long) regions.length * expectedRegionSize();
+    }
+
+    @Override
     public void expand(final Buffer buffer, final int index) {
         if (buffer.capacity() != expectedRegionSize()) {
             throw new IllegalArgumentException("The buffer capacity " + buffer.capacity() + " does not match the expected size of " + (bitMask + 1));

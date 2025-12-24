@@ -44,18 +44,20 @@ public class ExpandingBuffer extends FastCompositeBuffer {
 
     @Override
     protected long writeIdx(final long bytes) {
-        final long position = writePosition();
-        final long remaining = writableAt(position);
+        final long currentWritePosition = writePosition();
+        final long nextWritePosition = currentWritePosition + bytes;
 
-        if (remaining >= bytes) {
-            return super.writeIdx(bytes);
+        final int requiredRegionIndex = (int) ((nextWritePosition - 1) >> exponent);
+
+        while (requiredRegionIndex >= super.regions.length) {
+            expand();
         }
 
-        while (writableAt(position) < bytes) {
-            expandAt(position);
+        try {
+            return currentWritePosition;
+        } finally {
+            writePosition(nextWritePosition);
         }
-
-        return super.writeIdx(bytes);
     }
 
     public long writableAt(final long position) {
@@ -92,32 +94,16 @@ public class ExpandingBuffer extends FastCompositeBuffer {
         }
 
         this.regions = regions;
-        this.index = updateIndex(regions);
-        this.size = calculateSize(regions);
+        this.size = regions.length * allocationSize;
 
         final long capacityReduction = bufferCount * allocationSize;
         readPosition(readPosition() - capacityReduction);
         writePosition(writePosition() - capacityReduction);
     }
 
-    protected int bufferIdxAfter(final long position) {
-        final int regionCount = super.regions.length;
-        long nextRegion = ((position + expectedRegionSize() - 1) >> exponent) % regionCount;
-        return (int) ((nextRegion + 1) % regionCount);
-    }
-
-    public void expandAt(final long position) {
-        final int idx = bufferIdxAfter(position);
-        expand(allocateBuffer(), idx + 1);
-    }
-
     @Override
     public void write(final ByteBuffer readable) {
         final int bytes = readable.remaining();
-        while (bytes > writableAt(writePosition())) {
-            expandAt(writePosition());
-        }
-
         set(writeIdx(bytes), readable, readable.position(), bytes);
     }
 

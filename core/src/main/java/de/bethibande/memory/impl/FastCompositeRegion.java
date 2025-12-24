@@ -23,4 +23,12 @@ public class FastCompositeRegion extends CompositeRegion {
     public boolean canFit(final long globalOffset, final int length) {
         return pos(globalOffset) + length <= buffer().capacity();
     }
+
+    @Override
+    public String toString() {
+        return "FastCompositeRegion { " +
+                "capacity: " + buffer().capacity() + ", " +
+                "mask: " + this.mask +
+                " }";
+    }
 }
