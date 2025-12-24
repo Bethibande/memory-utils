@@ -52,6 +52,7 @@ public class PooledAllocator implements Allocator {
 
     protected void release(final PooledBuffer buffer) {
         buffer.reset();
+        buffer.retain(1 - buffer.referenceCount());
         pool.offer(buffer);
     }
 

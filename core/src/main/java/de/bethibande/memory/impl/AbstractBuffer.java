@@ -44,6 +44,11 @@ public abstract class AbstractBuffer implements Buffer {
     }
 
     @Override
+    public void retain(final int count) {
+        refCount.addAndGet(count);
+    }
+
+    @Override
     public void release() {
         final int count = refCount.decrementAndGet();
         if (count == 0) free();
